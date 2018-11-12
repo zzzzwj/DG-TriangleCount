@@ -1,0 +1,15 @@
+# bin #
+*.class
+
+# IDE Files#
+.idea/
+*.iml
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# output directory #
+out/
+result/
