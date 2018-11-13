@@ -13,6 +13,10 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 
+/*
+* Just sum the count of every possible triangle which is associate with the src point.
+* At the end, divide the count by 3 cause that a triangle is calculated triple.
+*/
 public class CountSum {
     private static class CountSumMapper extends Mapper<LongWritable, Text, Text, Text> {
 

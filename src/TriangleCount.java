@@ -20,6 +20,10 @@ public class TriangleCount {
 
     private static class TC_Stage_1_Mapper extends Mapper<LongWritable, Text, Text, Text> {
 
+        /*
+        * Input the adjacent table, output the key-value form "key: dest_point" "value: src_point", which means an edge of "src point -> dest point".
+        * Also, it outputs the adjacent table of key at the end for searching at the reduce stage.
+        */
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] vs = value.toString().split("\t");
@@ -40,6 +44,10 @@ public class TriangleCount {
             mos = new MultipleOutputs<Text, Text>(context);
         }
 
+        /*
+        * Get the key and values, write them to the HDFS file.
+        * Form of "key\tvalue;value;value;....;#Adjacent Table", which means edges "value->key;value->key;...;#adjacent table"
+        */
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             StringBuilder sb = new StringBuilder();
@@ -51,7 +59,8 @@ public class TriangleCount {
                     table = value.toString();
             }
             sb.append(table);
-            mos.write(new Text(key), new Text(sb.toString()), key.charAt(0) + "");
+            context.write(new Text(key), new Text(sb.toString()));
+//            mos.write(new Text(key), new Text(sb.toString()), key.charAt(0) + "");
         }
 
         @Override
@@ -62,6 +71,10 @@ public class TriangleCount {
 
     private static class TC_Stage_2_Mapper extends Mapper<LongWritable, Text, Text, Text> {
 
+        /*
+        * Go through all combinations of legal outgoing edges in adjacent table and output them with adjacent table of src point.
+        * Output format is "key" "value1,value2", "key" "value1,value2", ..., "key" "#adjacent table".
+        */
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] values = value.toString().split("\t");
@@ -93,6 +106,10 @@ public class TriangleCount {
             mos = new MultipleOutputs<Text, Text>(context);
         }
 
+        /*
+        * Try to find out if combination of edges exists in adjacent table, "true" then count + 1.
+        * Write the result to file.
+        */
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             int sum = 0;
@@ -120,7 +137,8 @@ public class TriangleCount {
                     }
                 }
             }
-            mos.write(key, new Text("" + sum), key.charAt(0) + "");
+            context.write(key, new Text("" + sum));
+//            mos.write(key, new Text("" + sum), key.charAt(0) + "");
         }
 
         @Override

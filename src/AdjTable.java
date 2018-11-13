@@ -15,10 +15,14 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.io.IOException;
 import java.util.HashMap;
 
+// Build a adjacent table
 public class AdjTable {
 
     private static class AdjTableMapper extends Mapper<LongWritable, Text, Text, Text> {
 
+        /*
+        * Split the input to key-value of form "key: src point" "value: dest point"
+        */
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] values = value.toString().split(" ");
@@ -36,6 +40,9 @@ public class AdjTable {
             mos = new MultipleOutputs<Text, Text>(context);
         }
 
+        /*
+        * Merge the key-values to a string, form of "key\tvalue,value,value...,"
+        */
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException{
             StringBuilder sb = new StringBuilder();
@@ -46,7 +53,8 @@ public class AdjTable {
                 pointmap.put(value.toString(), 1);
                 sb.append(value + ",");
             }
-            mos.write(key, new Text(sb.toString()), key.charAt(0)+"");
+            context.write(key, new Text(sb.toString()));
+//            mos.write(key, new Text(sb.toString()), key.charAt(0)+"");
         }
 
         @Override
