@@ -1,6 +1,8 @@
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 
 public class DGDriver {
 
@@ -23,5 +25,8 @@ public class DGDriver {
         fs.delete(new Path(AdjTable_param[1]),true);
         fs.delete(new Path(TriangleCount_param[1]),true);
 
+        FSDataInputStream in = fs.open(new Path(args[1] + "/part-r-00000"));
+        IOUtils.copyBytes(in, System.out, 1024);
+        IOUtils.closeStream(in);
     }
 }
